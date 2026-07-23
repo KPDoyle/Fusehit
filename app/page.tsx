@@ -14,6 +14,19 @@ type Musician = {
   audio: string;
 };
 
+type OpportunityType = "Paid gigs" | "Auditions" | "Hire pros" | "Mentors";
+
+type Opportunity = {
+  type: OpportunityType;
+  title: string;
+  owner: string;
+  meta: string;
+  reward: string;
+  tags: string[];
+  verified: string;
+  deadline: string;
+};
+
 const musicians: Musician[] = [
   {
     name: "Alex N.",
@@ -48,8 +61,100 @@ const musicians: Musician[] = [
 ];
 
 const instruments = ["Guitar", "Vocals", "Drums", "Bass", "Keys", "Producer"];
-const locations = ["London", "Manchester", "Brighton", "Bristol", "Anywhere"];
-const goals = ["Join a band", "Start a project", "Remote collaboration", "Find gigs"];
+const locations = ["London", "Manchester", "Brighton", "Bristol", "Worldwide / remote"];
+const goals = [
+  "Join a band",
+  "Start a project",
+  "Remote collaboration",
+  "Find paid work",
+  "Hire a music pro",
+  "Find a mentor",
+];
+
+const opportunityTypes: OpportunityType[] = ["Paid gigs", "Auditions", "Hire pros", "Mentors"];
+
+const opportunities: Opportunity[] = [
+  {
+    type: "Paid gigs",
+    title: "Indie support slot · 500-cap room",
+    owner: "Northline Presents",
+    meta: "London · 12 September",
+    reward: "£650 guarantee",
+    tags: ["Indie", "Originals", "Live"],
+    verified: "Promoter verified",
+    deadline: "Closes in 6 days",
+  },
+  {
+    type: "Paid gigs",
+    title: "Remote guitar session for alt-pop single",
+    owner: "Sofia R.",
+    meta: "Remote · stems supplied",
+    reward: "£240 fixed",
+    tags: ["Guitar", "Alt pop", "Remote"],
+    verified: "Payment protected",
+    deadline: "3 proposals",
+  },
+  {
+    type: "Auditions",
+    title: "Bassist for release-ready post-punk band",
+    owner: "Static Bloom",
+    meta: "Manchester · weekly rehearsal",
+    reward: "Equal member",
+    tags: ["Bass", "Post-punk", "Touring"],
+    verified: "ID + credits checked",
+    deadline: "Auditions 2–4 Aug",
+  },
+  {
+    type: "Auditions",
+    title: "Vocalist for electronic live project",
+    owner: "Night Circuit",
+    meta: "Berlin / remote · flexible",
+    reward: "Fee + royalty split",
+    tags: ["Vocals", "Electronic", "EU"],
+    verified: "Split terms posted",
+    deadline: "12 applicants",
+  },
+  {
+    type: "Hire pros",
+    title: "Mix engineer · cinematic alternative",
+    owner: "Nadia Okafor",
+    meta: "96 verified projects · 4.9 ★",
+    reward: "From £320",
+    tags: ["Mixing", "Atmospheric", "Dolby"],
+    verified: "Credits verified",
+    deadline: "Replies in 2 hours",
+  },
+  {
+    type: "Hire pros",
+    title: "Live photographer + vertical content",
+    owner: "Leo Martins",
+    meta: "UK / EU travel · 41 reviews",
+    reward: "From £450",
+    tags: ["Photo", "Video", "Tour"],
+    verified: "Insured pro",
+    deadline: "Next free: 18 Aug",
+  },
+  {
+    type: "Mentors",
+    title: "A&R office hours · positioning your release",
+    owner: "Imani Cole",
+    meta: "Former indie label A&R · remote",
+    reward: "£45 / 45 min",
+    tags: ["A&R", "Strategy", "Feedback"],
+    verified: "Career verified",
+    deadline: "4 slots this week",
+  },
+  {
+    type: "Mentors",
+    title: "Tour planning clinic for first-time artists",
+    owner: "Marek Nowak",
+    meta: "EU agent · group session",
+    reward: "Free community clinic",
+    tags: ["Touring", "Routing", "Budget"],
+    verified: "Partner host",
+    deadline: "Live on Thursday",
+  },
+];
 
 function Waveform({ active }: { active: boolean }) {
   const bars = [8, 18, 12, 25, 16, 30, 20, 12, 27, 17, 32, 21, 14, 26, 10, 18, 7];
@@ -70,6 +175,13 @@ export default function Home() {
   const [searched, setSearched] = useState(false);
   const [saved, setSaved] = useState<string[]>([]);
   const [studioMode, setStudioMode] = useState<"studio" | "pro">("studio");
+  const [opportunityType, setOpportunityType] = useState<OpportunityType>("Paid gigs");
+  const [applied, setApplied] = useState<string[]>([]);
+  const [workspaceTab, setWorkspaceTab] = useState<"Tracks" | "Comments" | "Tasks" | "Rights" | "Release">("Tracks");
+  const [taskDone, setTaskDone] = useState<number[]>([0]);
+  const [comment, setComment] = useState("");
+  const [commentSent, setCommentSent] = useState(false);
+  const [releaseStep, setReleaseStep] = useState(3);
   const [showJoin, setShowJoin] = useState(false);
   const [joined, setJoined] = useState(false);
   const [email, setEmail] = useState("");
@@ -78,6 +190,7 @@ export default function Home() {
     () => `${instrument} · ${location} · ${goal}`,
     [instrument, location, goal],
   );
+
   const heroStyle = {
     "--hero-image": `url("${HERO_IMAGE}")`,
   } as CSSProperties;
@@ -90,6 +203,16 @@ export default function Home() {
     );
   };
 
+  const visibleOpportunities = opportunities.filter((item) => item.type === opportunityType);
+
+  const toggleApplied = (title: string) => {
+    setApplied((current) =>
+      current.includes(title)
+        ? current.filter((item) => item !== title)
+        : [...current, title],
+    );
+  };
+
   return (
     <main>
       <section className="hero-shell" id="discover" style={heroStyle}>
@@ -99,9 +222,9 @@ export default function Home() {
           </a>
           <nav aria-label="Primary navigation">
             <a className="active" href="#discover">Discover</a>
+            <a href="#opportunities">Opportunities</a>
             <a href="#studio">Studio</a>
-            <a href="#collaborate">Collaborate</a>
-            <a href="#how-it-works">How it works</a>
+            <a href="#release">Release</a>
           </nav>
           <div className="header-actions">
             <button className="text-button" type="button" onClick={() => setShowJoin(true)}>Log in</button>
@@ -113,8 +236,8 @@ export default function Home() {
           <p className="eyebrow"><span /> Built for the music you haven&apos;t made yet</p>
           <h1>Find your sound.<br />Build something <em>original.</em></h1>
           <p className="hero-copy">
-            Meet musicians nearby or worldwide, audition by sound, and turn
-            first sparks into finished tracks.
+            Meet musicians nearby or worldwide, audition by sound, manage the
+            work and take every collaboration from first spark to release.
           </p>
           <div className="hero-actions">
             <a className="button button-blue" href="#matches">
@@ -169,7 +292,7 @@ export default function Home() {
           <span><strong>Studio</strong><small>Create. Record. Finish tracks.</small></span>
           <b>↗</b>
         </a>
-        <a className="space space-green" href="#how-it-works">
+        <a className="space space-green" href="#opportunities">
           <i>▰</i>
           <span><strong>On Stage</strong><small>Get exposed. Play live. Be heard.</small></span>
           <b>↗</b>
@@ -233,6 +356,80 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="opportunities-section" id="opportunities">
+        <div className="section-heading">
+          <div>
+            <p className="kicker green">Work / Opportunities</p>
+            <h2>Find the next move—not another dead-end post.</h2>
+          </div>
+          <button className="button button-outline" type="button" onClick={() => setShowJoin(true)}>
+            Post an opportunity <span>↗</span>
+          </button>
+        </div>
+
+        <div className="opportunity-toolbar">
+          <div className="opportunity-tabs" role="tablist" aria-label="Opportunity type">
+            {opportunityTypes.map((type) => (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={opportunityType === type}
+                className={opportunityType === type ? "active" : ""}
+                key={type}
+                onClick={() => setOpportunityType(type)}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+          <div className="opportunity-filters" aria-label="Active opportunity filters">
+            <span>◎ Anywhere</span>
+            <span>Verified only</span>
+            <span>Best match</span>
+          </div>
+        </div>
+
+        <div className="opportunity-grid">
+          {visibleOpportunities.map((item, index) => {
+            const hasApplied = applied.includes(item.title);
+            return (
+              <article className="opportunity-card" key={item.title}>
+                <div className="opportunity-card-top">
+                  <span className={`opportunity-mark mark-${index + 1}`}>{item.type === "Hire pros" ? "PRO" : item.type === "Mentors" ? "1:1" : "LIVE"}</span>
+                  <span className="verified-pill">✓ {item.verified}</span>
+                </div>
+                <p className="opportunity-owner">{item.owner}</p>
+                <h3>{item.title}</h3>
+                <p className="opportunity-meta">{item.meta}</p>
+                <div className="tags">
+                  {item.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                </div>
+                <div className="opportunity-footer">
+                  <div>
+                    <strong>{item.reward}</strong>
+                    <small>{item.deadline}</small>
+                  </div>
+                  <button
+                    type="button"
+                    className={hasApplied ? "is-applied" : ""}
+                    onClick={() => toggleApplied(item.title)}
+                  >
+                    {hasApplied ? "✓ Added" : opportunityType === "Hire pros" ? "Request quote" : opportunityType === "Mentors" ? "Book slot" : "Apply"} <span>↗</span>
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="marketplace-assurance">
+          <span><i>01</i><strong>Clear terms</strong><small>Fee, royalty, credit or skill exchange shown up front.</small></span>
+          <span><i>02</i><strong>Safe agreements</strong><small>Proposals, milestones, revisions and delivery stay in one workroom.</small></span>
+          <span><i>03</i><strong>Protected pay</strong><small>Funds release only when the agreed milestone is approved.</small></span>
+          <span><i>04</i><strong>Real reputation</strong><small>Only completed work creates verified reviews and credits.</small></span>
+        </div>
+      </section>
+
       <section className="studio-section" id="studio">
         <div className="studio-intro">
           <p className="kicker red">Creation / Studio</p>
@@ -283,40 +480,131 @@ export default function Home() {
               Cinematic alternative rock. Bass player wanted for a committed
               remote collaboration, with London sessions planned monthly.
             </p>
-            <div className="version-list">
-              {[
-                ["04", "Vocal arrangement", "Sofia · 2h ago"],
-                ["03", "Guitar textures", "Alex · yesterday"],
-                ["02", "Drum room take", "Jamie · 3 days ago"],
-                ["01", "Original demo", "Maya · 8 days ago"],
-              ].map(([version, title, meta], index) => (
-                <button type="button" className={index === 0 ? "active" : ""} key={version}>
-                  <span>V{version}</span>
-                  <strong>{title}</strong>
-                  <small>{meta}</small>
-                  <i>{index === 0 ? "▶" : "↗"}</i>
+            <div className="workspace-tabs" role="tablist" aria-label="Project workspace">
+              {(["Tracks", "Comments", "Tasks", "Rights", "Release"] as const).map((tab) => (
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={workspaceTab === tab}
+                  className={workspaceTab === tab ? "active" : ""}
+                  onClick={() => setWorkspaceTab(tab)}
+                  key={tab}
+                >
+                  {tab}
                 </button>
               ))}
             </div>
-            {studioMode === "pro" ? (
-              <div className="rights-panel">
-                <div>
-                  <span>Agreed rights split</span>
-                  <strong>Transparent from day one</strong>
+
+            <div className="workspace-panel">
+              {workspaceTab === "Tracks" && (
+                <>
+                  <div className="version-list">
+                    {[
+                      ["04", "Vocal arrangement", "Sofia · 2h ago"],
+                      ["03", "Guitar textures", "Alex · yesterday"],
+                      ["02", "Drum room take", "Jamie · 3 days ago"],
+                      ["01", "Original demo", "Maya · 8 days ago"],
+                    ].map(([version, title, meta], index) => (
+                      <button type="button" className={index === 0 ? "active" : ""} key={version}>
+                        <span>V{version}</span>
+                        <strong>{title}</strong>
+                        <small>{meta}</small>
+                        <i>{index === 0 ? "▶" : "↗"}</i>
+                      </button>
+                    ))}
+                  </div>
+                  <button className="button invite-button" type="button" onClick={() => setShowJoin(true)}>
+                    Upload stems or invite a player <span>↗</span>
+                  </button>
+                </>
+              )}
+
+              {workspaceTab === "Comments" && (
+                <div className="comments-panel">
+                  <div className="timeline-comments" aria-label="Time-coded feedback">
+                    <span style={{ left: "18%" }}>0:27</span>
+                    <span style={{ left: "53%" }}>1:18</span>
+                    <span style={{ left: "81%" }}>2:41</span>
+                  </div>
+                  <article><i>0:27</i><div><strong>Maya</strong><p>Can the bass answer the vocal here, then leave the downbeat open?</p></div><span>2 replies</span></article>
+                  <article><i>1:18</i><div><strong>Alex</strong><p>New guitar texture is in V04. A/B it against V03.</p></div><span>Resolved ✓</span></article>
+                  {commentSent && <article><i>Now</i><div><strong>You</strong><p>{comment || "Listening now — I’ll add a take tonight."}</p></div><span>Sent</span></article>}
+                  <form onSubmit={(event) => { event.preventDefault(); setCommentSent(true); }}>
+                    <input value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Add feedback at 2:41…" />
+                    <button type="submit">Send ↗</button>
+                  </form>
                 </div>
-                <div className="split-bar" aria-label="Rights split: Maya 40%, Alex 25%, Sofia 20%, Jamie 15%">
-                  <i style={{ width: "40%" }} />
-                  <i style={{ width: "25%" }} />
-                  <i style={{ width: "20%" }} />
-                  <i style={{ width: "15%" }} />
+              )}
+
+              {workspaceTab === "Tasks" && (
+                <div className="task-panel">
+                  {[
+                    ["Approve V04 vocal comp", "Maya", "Today"],
+                    ["Upload clean bass DI", "Open role", "Friday"],
+                    ["Confirm August studio date", "Everyone", "6 Aug"],
+                    ["Prepare final mix notes", "Sofia", "After bass"],
+                  ].map(([task, owner, due], index) => {
+                    const done = taskDone.includes(index);
+                    return (
+                      <button
+                        type="button"
+                        className={done ? "done" : ""}
+                        onClick={() => setTaskDone((current) => done ? current.filter((item) => item !== index) : [...current, index])}
+                        key={task}
+                      >
+                        <i>{done ? "✓" : ""}</i><strong>{task}</strong><span>{owner}</span><small>{due}</small>
+                      </button>
+                    );
+                  })}
+                  <div className="session-row"><span>◉ Group video room</span><strong>Soundcheck · Thu 19:30 BST</strong><button type="button">Join room ↗</button></div>
                 </div>
-                <small>Creators keep control. Fusehit takes no ownership.</small>
-              </div>
-            ) : (
-              <button className="button invite-button" type="button" onClick={() => setShowJoin(true)}>
-                Request to contribute <span>↗</span>
-              </button>
-            )}
+              )}
+
+              {workspaceTab === "Rights" && (
+                <div className="rights-panel rights-panel-expanded">
+                  <div>
+                    <span>Agreed composition split</span>
+                    <strong>{studioMode === "pro" ? "4 / 4 signed" : "Upgrade to e-sign"}</strong>
+                  </div>
+                  <div className="split-bar" aria-label="Rights split: Maya 40%, Alex 25%, Sofia 20%, Jamie 15%">
+                    <i style={{ width: "40%" }} />
+                    <i style={{ width: "25%" }} />
+                    <i style={{ width: "20%" }} />
+                    <i style={{ width: "15%" }} />
+                  </div>
+                  <div className="split-legend">
+                    <span><i /> Maya · writer<strong>40%</strong></span>
+                    <span><i /> Alex · writer<strong>25%</strong></span>
+                    <span><i /> Sofia · writer / producer<strong>20%</strong></span>
+                    <span><i /> Jamie · performer<strong>15%</strong></span>
+                  </div>
+                  <div className="metadata-row">
+                    <span>✓ Legal names &amp; roles</span><span>✓ PRO / IPI details</span><span>✓ Master ownership</span><span>ISRC on release</span>
+                  </div>
+                  <small>Versioned split sheet and credits travel with the release. Fusehit takes no ownership.</small>
+                </div>
+              )}
+
+              {workspaceTab === "Release" && (
+                <div className="release-panel">
+                  {["Final files", "Credits & splits", "Mastering", "Distribution", "Campaign", "Analytics"].map((step, index) => (
+                    <button
+                      type="button"
+                      className={index < releaseStep ? "complete" : index === releaseStep ? "active" : ""}
+                      onClick={() => setReleaseStep(index)}
+                      key={step}
+                    >
+                      <i>{index < releaseStep ? "✓" : index + 1}</i>
+                      <span><strong>{step}</strong><small>{index < releaseStep ? "Ready" : index === releaseStep ? "In progress" : "Next"}</small></span>
+                    </button>
+                  ))}
+                  <div className="release-action">
+                    <span><small>Next action</small><strong>{["Approve master files", "Collect final signatures", "Book mastering review", "Choose stores & release date", "Build EPK + pre-save", "Connect live insights"][releaseStep]}</strong></span>
+                    <button type="button" onClick={() => setReleaseStep((current) => Math.min(5, current + 1))}>Continue ↗</button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -378,11 +666,74 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="career-section" id="release">
+        <div className="career-heading">
+          <p className="kicker blue">Career / Control room</p>
+          <h2>One home for the whole journey.</h2>
+          <p>
+            Discovery is only the first mile. Fusehit connects the conversations,
+            agreements, release work and audience signals that usually live in
+            five different apps.
+          </p>
+        </div>
+        <div className="career-grid">
+          <article className="career-card career-comms">
+            <span className="card-number">01 / Coordinate</span>
+            <h3>Inbox, sessions and decisions.</h3>
+            <div className="message-stack">
+              <p><i>SR</i><span><strong>Sofia</strong>V04 vocals are ready for notes.</span><small>2m</small></p>
+              <p><i>NC</i><span><strong>Night Circuit</strong>Audition moved to video room.</span><small>1h</small></p>
+              <p><i>FH</i><span><strong>Fusehit</strong>Your split sheet is fully signed.</span><small>Now</small></p>
+            </div>
+            <div className="feature-chips"><span>Direct + group chat</span><span>Video rooms</span><span>Calendar sync</span><span>Smart notifications</span></div>
+          </article>
+
+          <article className="career-card career-business">
+            <span className="card-number">02 / Work safely</span>
+            <h3>From proposal to paid.</h3>
+            <div className="milestone-box">
+              <div><span>Mixing · Midnight Drive</span><strong>£320 funded</strong></div>
+              <div className="milestone-track"><i /><i /><i /></div>
+              <ol><li className="complete">Proposal agreed</li><li className="active">Revision 1</li><li>Approve &amp; release</li></ol>
+            </div>
+            <div className="feature-chips"><span>Scope + revisions</span><span>Milestone pay</span><span>Dispute support</span><span>Verified reviews</span></div>
+          </article>
+
+          <article className="career-card career-release">
+            <span className="card-number">03 / Release</span>
+            <h3>Credits that travel with the music.</h3>
+            <div className="release-ticket">
+              <p><span>Single</span><strong>Midnight Drive</strong></p>
+              <ul><li>✓ Credits complete</li><li>✓ Splits signed</li><li>✓ Master approved</li><li>○ Store delivery</li></ul>
+              <div><span>UPC pending</span><span>ISRC at delivery</span><span>Release: 18 Oct</span></div>
+            </div>
+            <div className="feature-chips"><span>Metadata</span><span>Split sheets</span><span>Mastering</span><span>Distribution handoff</span></div>
+          </article>
+
+          <article className="career-card career-growth">
+            <span className="card-number">04 / Grow</span>
+            <h3>Turn every release into momentum.</h3>
+            <div className="growth-chart" aria-label="Audience growth preview">
+              {[22, 31, 26, 46, 42, 67, 78, 92].map((height, index) => <i key={index} style={{ height: `${height}%` }} />)}
+            </div>
+            <div className="growth-stats"><span><strong>18.4k</strong> listeners</span><span><strong>6.8%</strong> save rate</span><span><strong>12</strong> opportunities</span></div>
+            <div className="feature-chips"><span>EPK + smart links</span><span>Pre-save</span><span>Audience insights</span><span>Showcase submissions</span></div>
+          </article>
+        </div>
+        <div className="global-bar">
+          <span><strong>Global by default</strong> Local radius or remote</span>
+          <span>Timezone-aware sessions</span>
+          <span>Language-ready profiles</span>
+          <span>Local currency display</span>
+          <span>Report · block · moderation</span>
+        </div>
+      </section>
+
       <section className="how-section" id="how-it-works">
         <div className="how-copy">
           <p className="kicker blue">How it works</p>
-          <h2>From first spark<br />to first show.</h2>
-          <p>Create a sound-led profile in minutes. Fusehit does the hard work of finding people who fit.</p>
+          <h2>From first spark<br />to real momentum.</h2>
+          <p>Create a sound-led profile in minutes. Fusehit keeps every next step connected after the match.</p>
           <button className="button button-blue" type="button" onClick={() => setShowJoin(true)}>
             Create your profile <span>↗</span>
           </button>
@@ -405,8 +756,8 @@ export default function Home() {
           <li>
             <span>03</span>
             <div>
-              <h3>Build it in Studio</h3>
-              <p>Capture versions, invite contributors and take the strongest project On Stage.</p>
+              <h3>Build, agree and release</h3>
+              <p>Capture versions, gather feedback, sign splits, pay contributors and take the strongest project On Stage.</p>
             </div>
           </li>
         </ol>
@@ -422,8 +773,9 @@ export default function Home() {
           <p className="kicker green">Exposure / On Stage</p>
           <h2>Don&apos;t wait to be discovered.<br />Put the work where people listen.</h2>
           <p>
-            Monthly community showcases turn the strongest collaborations into
-            live opportunities, audience feedback and industry introductions.
+            Build a live EPK, submit to verified gigs and challenges, collect
+            audience feedback, and turn the strongest collaborations into
+            shows, placements and industry introductions.
           </p>
           <div className="onstage-stats">
             <span><strong>128</strong> projects live now</span>
@@ -450,9 +802,9 @@ export default function Home() {
         <p>Find your sound. Build something original.</p>
         <div>
           <a href="#discover">Discover</a>
+          <a href="#opportunities">Opportunities</a>
           <a href="#studio">Studio</a>
-          <a href="#collaborate">Collaborate</a>
-          <a href="#how-it-works">How it works</a>
+          <a href="#release">Release</a>
         </div>
         <small>© 2026 Fusehit · A new kind of music community</small>
       </footer>
