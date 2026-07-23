@@ -1,19 +1,25 @@
 # Fusehit
 
-Fusehit is a modern musician discovery and collaboration platform. It moves
-beyond classified ads by supporting the full journey from finding compatible
-musicians to auditioning by sound, developing projects in Studio, agreeing
-rights splits in Studio Pro, and promoting finished work On Stage.
+Fusehit is an audio-first global platform for finding musicians, building
+projects, booking opportunities and taking music from the first match through
+release and growth.
 
-## Features
+**Live app:** https://fusehit.kevin-doyle296372.chatgpt.site
 
-- Musician matching by instrument, location and ambition
-- Playable audio-first profiles and favourites
-- Collaborative Studio projects with version history
-- Transparent Studio Pro rights splits
-- Trust and activity signals
-- On Stage showcases
-- Responsive desktop, tablet and mobile design
+## Product coverage
+
+- Smart local or worldwide matching by sound, role, influences, availability,
+  distance and ambition
+- Playable profiles, favourites, verification, activity and response signals
+- Paid gigs, auditions, professional services and mentoring opportunities
+- Up-front fee, royalty, credit and skill-exchange terms
+- Protected proposals, milestones, revisions, delivery and verified reviews
+- Studio projects with stems, version history and A/B-ready takes
+- Time-coded feedback, group chat, video rooms, tasks and session scheduling
+- Contributor roles, credits, metadata, split sheets and release signatures
+- Mastering and distribution handoff, EPKs, smart links and pre-save campaigns
+- Audience analytics, showcases, submissions and live opportunity tracking
+- Responsive desktop, tablet and mobile experience
 
 ## Run locally
 
@@ -24,7 +30,9 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Deploy
+## Production notes
 
-The project is a standard Next.js application and can be imported directly
-into Vercel.
+This repository is the interactive product prototype. Durable accounts,
+messaging, file storage, payments, rights signatures, distribution integrations
+and moderation queues require production services and provider integrations
+before a commercial launch.
