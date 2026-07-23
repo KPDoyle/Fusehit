@@ -217,7 +217,7 @@ export default function Home() {
     <main>
       <section className="hero-shell" id="discover" style={heroStyle}>
         <header className="site-header">
-          <a className="wordmark" href="#discover" aria-label="Fusehit home">
+          <a className="wordmark" href="/" aria-label="Go to Fusehit home page">
             FUSE<span>HIT</span><i />
           </a>
           <nav aria-label="Primary navigation">
@@ -796,7 +796,7 @@ export default function Home() {
       </section>
 
       <footer>
-        <a className="wordmark" href="#discover" aria-label="Fusehit home">
+        <a className="wordmark" href="/" aria-label="Go to Fusehit home page">
           FUSE<span>HIT</span><i />
         </a>
         <p>Find your sound. Build something original.</p>
